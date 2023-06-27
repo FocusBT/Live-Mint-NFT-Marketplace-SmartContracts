@@ -12,7 +12,7 @@ contract Mintraribles is ERC721Enumerable, Ownable {
 
     address public artist;
     uint256 public royalityFee;
-    uint256 public supply = 0;
+    uint256 public supply = 1;
     uint256 public totalTx = 0;
     uint256 public cost = 0.01 ether;
 
