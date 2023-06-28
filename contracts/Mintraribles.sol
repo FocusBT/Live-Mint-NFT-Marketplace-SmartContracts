@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity ^0.8.7;
 
 import "./MyNFT.sol";
+
+// https://gateway.pinata.cloud/ipfs/QmU9CFdakLD7oeQmjtXChfWU5ieWpLb6e9DZ4QNRgHtpxg save baseURI like this
 
 contract Mintraribles {
     using Strings for uint256;
@@ -11,7 +13,7 @@ contract Mintraribles {
     address public artist;
     uint256 public royalityFee;
     uint256 public totalTx = 0;
-    uint256 public cost = 0.00001 ether;
+    uint256 public cost = 0.0001 ether;
 
     event Sale(
         uint256 id,
@@ -46,7 +48,7 @@ contract Mintraribles {
         uint salesPrice
     ) public payable {
         require(msg.value >= cost, "Ether too low for minting!");
-        MyNFT mynft = new MyNFT(baseURI, name, shortN);
+        MyNFT mynft = new MyNFT(baseURI, name, shortN, salesPrice);
         OwnerOfNft[address(mynft)] = msg.sender;
 
         minted.push(
