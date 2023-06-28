@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity >=0.7.0 <0.9.0;
 
 import "./MyNFT.sol";
 
@@ -11,7 +11,7 @@ contract Mintraribles {
     address public artist;
     uint256 public royalityFee;
     uint256 public totalTx = 0;
-    uint256 public cost = 0.0001 ether;
+    uint256 public cost = 0.00001 ether;
 
     event Sale(
         uint256 id,
