@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract MyNFT is ERC721 {
     using Strings for uint256;
-
+    
     string public _baseTokenURI;
 
     // max number of LW3Punks
