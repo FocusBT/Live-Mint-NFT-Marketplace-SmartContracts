@@ -122,7 +122,11 @@ contract Mintraribles {
         // payTo(owner(), (msg.value - royality));
     }
 
-    function payToBuy(address contractAddr, uint amount) public payable {
+    function payToBuy(
+        address contractAddr,
+        uint amount,
+        address ownerOfNFT
+    ) public payable {
         require(
             msg.value >= prices[contractAddr],
             "Ether too low for purchase!"
@@ -136,7 +140,7 @@ contract Mintraribles {
         totalTx++;
         string memory metadataURI = MyNFT(contractAddr).tokenURI(1);
 
-        MyNFT(contractAddr).transferFrom(address(this), msg.sender, 1);
+        MyNFT(contractAddr).transferFrom(ownerOfNFT, msg.sender, 1);
 
         transactions.push(
             TransactionStruct(
