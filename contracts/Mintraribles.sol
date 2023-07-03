@@ -136,6 +136,8 @@ contract Mintraribles {
         totalTx++;
         string memory metadataURI = MyNFT(contractAddr).tokenURI(1);
 
+        MyNFT(contractAddr).transferFrom(address(this), msg.sender, 1);
+
         transactions.push(
             TransactionStruct(
                 OwnerOfNft[contractAddr],
@@ -149,6 +151,14 @@ contract Mintraribles {
         emit Sale(totalTx, msg.sender, msg.value, metadataURI, block.timestamp);
 
         OwnerOfNft[contractAddr] = msg.sender;
+
+        for (uint i = 0; i < onSale.length; i++) {
+            if (onSale[i].contractAddr == contractAddr) {
+                delete onSale[i];
+                prices[contractAddr] = 0;
+                break;
+            }
+        }
     }
 
     function getPrice(address addr) public view returns (uint) {
