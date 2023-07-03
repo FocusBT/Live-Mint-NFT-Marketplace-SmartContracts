@@ -122,7 +122,7 @@ contract Mintraribles {
         // payTo(owner(), (msg.value - royality));
     }
 
-    function payToBuy(address contractAddr, uint amount) external payable {
+    function payToBuy(address contractAddr, uint amount) public payable {
         require(
             msg.value >= prices[contractAddr],
             "Ether too low for purchase!"
