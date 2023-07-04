@@ -3,17 +3,13 @@ pragma solidity ^0.8.7;
 
 import "./MyNFT.sol";
 
-// https://gateway.pinata.cloud/ipfs/QmU9CFdakLD7oeQmjtXChfWU5ieWpLb6e9DZ4QNRgHtpxg save baseURI like this
-
 contract Mintraribles {
     using Strings for uint256;
-    mapping(string => uint8) existingURIs;
-    mapping(uint256 => address) public holderOf;
-
     mapping(address => address) public artists;
-    uint256 public royalityFee;
-    uint256 public totalTx = 0;
-    // uint256 public cost = 0.0001 ether;
+    uint256 public totalTx;
+    uint256 public cost = 0.01 ether;
+    uint public royalityFee = 2;
+    address public owner;
 
     struct OnSale {
         address owner;
@@ -47,10 +43,23 @@ contract Mintraribles {
     mapping(address => uint) public prices;
 
     constructor() {
-        royalityFee = 2;
+        owner = msg.sender;
     }
 
-    address[] public nftContracts;
+    function withdrawTax() public {
+        require(msg.sender == owner, "you can not do that");
+        payTo(owner, address(this).balance);
+    }
+
+    function changeCost(uint _cost) public {
+        require(msg.sender == owner, "you can not do that");
+        cost = _cost;
+    }
+
+    function changeRoyalityPer(uint _royality) public {
+        require(msg.sender == owner, "you can not do that");
+        royalityFee = _royality;
+    }
 
     function putOnSale(
         uint _price,
@@ -61,6 +70,11 @@ contract Mintraribles {
             msg.sender == OwnerOfNft[_contractAddr],
             "You are not the owner"
         );
+        require(
+            MyNFT(_contractAddr).getApproved(1) == address(this),
+            "token is not approved yet"
+        );
+
         prices[_contractAddr] = _price;
 
         onSale.push(OnSale(msg.sender, _price, _contractAddr, _metadata));
@@ -91,19 +105,11 @@ contract Mintraribles {
         string memory baseURI,
         string memory name,
         string memory shortN
-    )
-        public
-        returns (
-            // uint salesPrice
-            address
-        )
-    {
-        // require(msg.value >= cost, "Ether too low for minting!");
+    ) public payable returns (address) {
+        require(msg.value >= cost, "Ether too low for minting!");
         MyNFT mynft = new MyNFT(baseURI, name, shortN, msg.sender);
         OwnerOfNft[address(mynft)] = msg.sender;
-        // prices[address(mynft)] = salesPrice;
         artists[address(mynft)] = msg.sender;
-        nftContracts.push(address(mynft));
         string memory metadataURI = mynft.tokenURI(1);
         minted.push(
             TransactionStruct(
@@ -114,19 +120,10 @@ contract Mintraribles {
                 block.timestamp
             )
         );
-
         return address(mynft);
-
-        // uint256 royality = (msg.value * royalityFee) / 100;
-        // payTo(artist, royality);
-        // payTo(owner(), (msg.value - royality));
     }
 
-    function payToBuy(
-        address contractAddr,
-        uint amount,
-        address ownerOfNFT
-    ) public payable {
+    function payToBuy(address contractAddr, address ownerOfNFT) public payable {
         require(
             msg.value >= prices[contractAddr],
             "Ether too low for purchase!"
@@ -135,7 +132,7 @@ contract Mintraribles {
 
         uint256 royality = (msg.value * royalityFee) / 100;
         payTo(artists[contractAddr], royality);
-        payTo(msg.sender, (msg.value - royality));
+        payTo(OwnerOfNft[contractAddr], (msg.value - royality));
 
         totalTx++;
         string memory metadataURI = MyNFT(contractAddr).tokenURI(1);
@@ -146,7 +143,7 @@ contract Mintraribles {
             TransactionStruct(
                 OwnerOfNft[contractAddr],
                 msg.sender,
-                amount,
+                prices[contractAddr],
                 metadataURI,
                 block.timestamp
             )
@@ -178,7 +175,6 @@ contract Mintraribles {
             msg.sender == OwnerOfNft[nftContract],
             "Operation Not Allowed!"
         );
-
         prices[nftContract] = newPrice;
         return true;
     }
@@ -192,10 +188,8 @@ contract Mintraribles {
         return minted;
     }
 
-    function getNFT(
-        uint256 id
-    ) external view returns (TransactionStruct memory) {
-        return minted[id - 1];
+    function getFees() public view returns (uint) {
+        return cost;
     }
 
     function getAllTransactions()

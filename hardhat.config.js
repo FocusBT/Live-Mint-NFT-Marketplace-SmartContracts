@@ -9,13 +9,15 @@ module.exports = {
   // paths: {
   //   artifacts: "./src/Components/artifacts",
   // },
-  settings: {
-    optimizer: {
-      enabled: true,
-      runs: 200, // The number of runs the optimizer will perform
+  solidity: {
+    version: "0.8.18",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
     },
   },
-  solidity: "0.8.7",
   networks: {
     sepholia: {
       url: QUICKNODE_HTTP_URL,
